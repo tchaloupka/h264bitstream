@@ -1,19 +1,19 @@
-/* 
+/*
  * h264bitstream - a library for reading and writing H.264 video
  * Copyright (C) 2005-2007 Auroras Entertainment, LLC
- * 
+ *
  * Written by Alex Izvorski <aizvorski@gmail.com>
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     if (infile == NULL) { fprintf( stderr, "!! Error: could not open file: %s \n", strerror(errno)); exit(EXIT_FAILURE); }
 
     if (h264_dbgfile == NULL) { h264_dbgfile = stdout; }
-    
+
 
     size_t rsz = 0;
     size_t sz = 0;
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
         if (rsz == 0)
         {
             if (ferror(infile)) { fprintf( stderr, "!! Error: read failed: %s \n", strerror(errno)); break; }
-            break;  // if (feof(infile)) 
+            break;  // if (feof(infile))
         }
 
         sz += rsz;
@@ -140,6 +140,10 @@ int main(int argc, char *argv[])
                       (long long int)(off + (p - buf) + nal_start),
                       (long long int)(nal_end - nal_start),
                       (long long int)(nal_end - nal_start) );
+
+                fprintf( h264_dbgfile, "XX: ");
+                debug_bytes(p + nal_start, nal_end - nal_start >= 16 ? 16: nal_end - nal_start);
+
             }
 
             p += nal_start;
@@ -161,25 +165,17 @@ int main(int argc, char *argv[])
                 break; // we've seen enough, bailing out.
             }
 
-            if ( opt_verbose > 0 )
-            {
-                // fprintf( h264_dbgfile, "XX ");
-                // debug_bytes(p-4, nal_end - nal_start + 4 >= 16 ? 16: nal_end - nal_start + 4);
-
-                // debug_nal(h, h->nal);
-            }
-
             p += (nal_end - nal_start);
             sz -= nal_end;
         }
 
         // if no NALs found in buffer, discard it
-        if (p == buf) 
+        if (p == buf)
         {
             fprintf( stderr, "!! Did not find any NALs between offset %lld (0x%04llX), size %lld (0x%04llX), discarding \n",
-                   (long long int)off, 
-                   (long long int)off, 
-                   (long long int)off + sz, 
+                   (long long int)off,
+                   (long long int)off,
+                   (long long int)off + sz,
                    (long long int)off + sz);
 
             p = buf + sz;
